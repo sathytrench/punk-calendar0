@@ -14,7 +14,31 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
+model Event {
+    id        Int      @id @default(autoincrement())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    slug      String   @unique @db.VarChar(255)
+
+    createdBy   User   @relation(fields: [createdById], references: [id])
+    createdById String
+
+    location   Location @relation(fields: [locationId], references: [id])
+    locationId String   @unique @db.VarChar(255)
+
+    title     String @db.Text @default("")
+    description String @db.Text @default("")
+
+    startDate DateTime
+    endDate   DateTime?   @db.Date
+
+    tags      String[] @db.Text
+
+    @@index([name])
+}
+
+model Location {
     id        Int      @id @default(autoincrement())
     name      String
     createdAt DateTime @default(now())
@@ -23,7 +47,13 @@ model Post {
     createdBy   User   @relation(fields: [createdById], references: [id])
     createdById String
 
+    address   String @db.Text @default("")
+    description String @db.Text @default("")
+    allAges    Boolean @default(false)
+
+
     @@index([name])
+    Event Event[]
 }
 
 // Necessary for Next auth
@@ -63,6 +93,10 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+
+    Event Event[]
+
+    Location Location[]
 }
 
 model VerificationToken {
