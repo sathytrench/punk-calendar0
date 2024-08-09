@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       tags: ['test', 'tag'],
     })
   } catch (error) {
-    console.error('Error fetching audio:', error)
+    console.error('Error fetching event:', error)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
