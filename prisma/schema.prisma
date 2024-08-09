@@ -14,22 +14,46 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
+model Event {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    slug      String   @unique @db.VarChar(255) //autogenerate? event/:date-:title
+
+    createdBy   User   @relation(fields: [createdById], references: [id])
+    createdById Int
+
+    location   Location @relation(fields: [locationId], references: [id])
+    locationId Int   @unique
+
+    title     String @db.Text
+    image     String
+    date      DateTime @db.Date
+    tags      String[] @db.Text
+
+    @@index([title])
+}
+
+model Location {
     id        Int      @id @default(autoincrement())
     name      String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
+    createdById Int
+
+    address   String @db.Text @default("")
+    allAges    Boolean @default(false)
 
     @@index([name])
+    Event Event[]
 }
 
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
-    userId                   String
+    userId                   Int
     type                     String
     provider                 String
     providerAccountId        String
@@ -47,22 +71,24 @@ model Account {
 }
 
 model Session {
-    id           String   @id @default(cuid())
+    id           Int   @id
     sessionToken String   @unique
-    userId       String
+    userId       Int
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
+    id            Int    @id
+    name          String
+    email         String   @unique
     emailVerified DateTime?
-    image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
+
+    Event Event[]
+
+    Location Location[]
 }
 
 model VerificationToken {
